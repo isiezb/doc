@@ -1,10 +1,16 @@
 import { Pool } from "pg";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const rawUrl = process.env.DATABASE_URL;
 
-if (!DATABASE_URL) {
+if (!rawUrl) {
   throw new Error("DATABASE_URL environment variable is required");
 }
+
+// Strip brackets from password if present (Supabase uses [password] format)
+const DATABASE_URL = rawUrl.replace(
+  /\/\/([^:]+):\[([^\]]+)\]@/,
+  "//$1:$2@"
+);
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
