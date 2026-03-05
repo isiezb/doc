@@ -28,9 +28,8 @@ export default function ArztCard({ arzt }: ArztCardProps) {
   const initials = `${arzt.vorname[0]}${arzt.nachname[0]}`;
   const fullName = [arzt.titel, arzt.vorname, arzt.nachname].filter(Boolean).join(" ");
   const currentYear = new Date().getFullYear();
-  const yearsExperience = arzt.facharzt_seit_jahr
-    ? currentYear - arzt.facharzt_seit_jahr
-    : currentYear - arzt.approbation_jahr;
+  const startYear = arzt.facharzt_seit_jahr || arzt.approbation_jahr;
+  const yearsExperience = startYear && startYear > 1950 ? currentYear - startYear : null;
   const eingriffeList = arzt.eingriffe ? arzt.eingriffe.split(",") : [];
 
   return (
@@ -71,7 +70,9 @@ export default function ArztCard({ arzt }: ArztCardProps) {
           {/* Meta row */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
             <span>{arzt.stadt}, {LAND_LABELS[arzt.land] || arzt.land}</span>
-            <span>{yearsExperience} Jahre Erfahrung</span>
+            {yearsExperience !== null && (
+              <span>{yearsExperience} Jahre Erfahrung</span>
+            )}
           </div>
 
           {/* Eingriff-Tags */}
