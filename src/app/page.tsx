@@ -17,13 +17,12 @@ interface Arzt {
   bundesland: string;
   facharzt_seit_jahr: number | null;
   approbation_jahr: number;
+  land: string;
   seo_slug: string;
   klinik_name: string | null;
   klinik_typ: string | null;
   klinik_gmbh: number;
   eingriffe: string | null;
-  bew_score: number | null;
-  bew_total: number | null;
 }
 
 interface SearchParams {
@@ -74,9 +73,6 @@ export default async function Home({
     case "erfahrung":
       orderBy = "a.facharzt_seit_jahr ASC NULLS LAST, a.approbation_jahr ASC";
       break;
-    case "bewertungen":
-      orderBy = "bew_score DESC NULLS LAST";
-      break;
     default:
       orderBy = "a.nachname ASC, a.vorname ASC";
   }
@@ -85,9 +81,7 @@ export default async function Home({
     SELECT
       a.*,
       k.name AS klinik_name, k.typ AS klinik_typ, k.impressum_gmbh AS klinik_gmbh,
-      (SELECT GROUP_CONCAT(DISTINCT eingriff) FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe,
-      (SELECT ROUND(AVG(score / max_score * 5), 1) FROM bewertungen WHERE arzt_id = a.id) AS bew_score,
-      (SELECT SUM(anzahl_bewertungen) FROM bewertungen WHERE arzt_id = a.id) AS bew_total
+      (SELECT GROUP_CONCAT(DISTINCT eingriff) FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe
     FROM aerzte a
     LEFT JOIN kliniken k ON a.klinik_id = k.id
     ${where}

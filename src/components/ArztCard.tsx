@@ -1,3 +1,9 @@
+const LAND_LABELS: Record<string, string> = {
+  DE: "Deutschland",
+  AT: "Oesterreich",
+  CH: "Schweiz",
+};
+
 interface ArztCardProps {
   arzt: {
     vorname: string;
@@ -6,6 +12,7 @@ interface ArztCardProps {
     ist_facharzt: number;
     facharzttitel: string | null;
     selbstbezeichnung: string;
+    land: string;
     stadt: string;
     bundesland: string;
     facharzt_seit_jahr: number | null;
@@ -14,8 +21,6 @@ interface ArztCardProps {
     klinik_typ: string | null;
     klinik_gmbh: number;
     eingriffe: string | null;
-    bew_score: number | null;
-    bew_total: number | null;
   };
 }
 
@@ -65,13 +70,8 @@ export default function ArztCard({ arzt }: ArztCardProps) {
 
           {/* Meta row */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
-            <span>{arzt.stadt}</span>
+            <span>{arzt.stadt}, {LAND_LABELS[arzt.land] || arzt.land}</span>
             <span>{yearsExperience} Jahre Erfahrung</span>
-            {arzt.bew_score && (
-              <span>
-                {arzt.bew_score}/5 ({arzt.bew_total} Bewertungen)
-              </span>
-            )}
           </div>
 
           {/* Eingriff-Tags */}

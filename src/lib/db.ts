@@ -23,6 +23,7 @@ export function initDb() {
       name TEXT NOT NULL,
       typ TEXT CHECK(typ IN ('privatklinik_108','privatklinik_30','praxis','schoenheitskette')),
       website_url TEXT,
+      land TEXT DEFAULT 'DE',
       stadt TEXT,
       bundesland TEXT,
       latitude REAL,
@@ -50,6 +51,7 @@ export function initDb() {
       facharzt_seit_jahr INTEGER,
       klinik_id INTEGER REFERENCES kliniken(id),
       position TEXT,
+      land TEXT DEFAULT 'DE',
       stadt TEXT,
       bundesland TEXT,
       plz TEXT,
@@ -90,16 +92,6 @@ export function initDb() {
       mitgliedsstatus TEXT,
       verifiziert INTEGER DEFAULT 0,
       quelle_url TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS bewertungen (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      arzt_id INTEGER NOT NULL REFERENCES aerzte(id),
-      plattform TEXT CHECK(plattform IN ('jameda','google','estheticon','doctolib')),
-      score REAL,
-      max_score REAL,
-      anzahl_bewertungen INTEGER,
-      UNIQUE(arzt_id, plattform)
     );
 
     CREATE TABLE IF NOT EXISTS promotionen (
@@ -150,7 +142,7 @@ export function initDb() {
     CREATE INDEX IF NOT EXISTS idx_aerzte_facharzt ON aerzte(ist_facharzt);
     CREATE INDEX IF NOT EXISTS idx_spez_arzt ON spezialisierungen(arzt_id);
     CREATE INDEX IF NOT EXISTS idx_spez_eingriff ON spezialisierungen(eingriff);
-    CREATE INDEX IF NOT EXISTS idx_bewertungen_arzt ON bewertungen(arzt_id);
+    CREATE INDEX IF NOT EXISTS idx_aerzte_land ON aerzte(land);
   `);
 
   return db;

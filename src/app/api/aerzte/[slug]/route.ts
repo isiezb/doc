@@ -37,10 +37,6 @@ export async function GET(
     "SELECT gesellschaft, mitglied_seit_jahr, mitgliedsstatus, verifiziert, quelle_url FROM mitgliedschaften WHERE arzt_id = ?"
   ).all(id);
 
-  const bewertungen = db.prepare(
-    "SELECT plattform, score, max_score, anzahl_bewertungen FROM bewertungen WHERE arzt_id = ?"
-  ).all(id);
-
   const promotion = db.prepare(
     "SELECT titel, thema, universitaet, jahr, verifiziert FROM promotionen WHERE arzt_id = ?"
   ).get(id);
@@ -54,7 +50,6 @@ export async function GET(
     spezialisierungen,
     werdegang,
     mitgliedschaften,
-    bewertungen,
     promotion,
     preise,
   });

@@ -62,7 +62,6 @@ export default function SearchFilters({ bundeslaender, currentParams }: SearchFi
         >
           <option value="name">Name</option>
           <option value="erfahrung">Erfahrung</option>
-          <option value="bewertungen">Bewertungen</option>
         </select>
       </div>
 
