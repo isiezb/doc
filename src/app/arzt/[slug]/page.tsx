@@ -60,8 +60,14 @@ interface ArztProfile {
   stadt: string;
   bundesland: string;
   plz: string;
+  strasse: string | null;
   seo_slug: string;
   website_url: string | null;
+  telefon: string | null;
+  email: string | null;
+  fax: string | null;
+  schwerpunkte: string | null;
+  land: string;
   klinik_name: string | null;
   klinik_typ: string | null;
   klinik_website: string | null;
@@ -168,9 +174,25 @@ export default async function ArztProfilPage({
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{fullName}</h1>
               <p className="text-gray-600">{arzt.selbstbezeichnung}</p>
+              {arzt.schwerpunkte && (
+                <p className="text-sm text-gray-500 mt-0.5">{arzt.schwerpunkte}</p>
+              )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
-                <span>{arzt.position} · {arzt.stadt}</span>
+                {arzt.strasse && <span>{arzt.strasse}</span>}
+                <span>{[arzt.plz, arzt.stadt, arzt.bundesland].filter(Boolean).join(", ")}</span>
                 {arzt.klinik_name && <span>{arzt.klinik_name}</span>}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
+                {arzt.telefon && (
+                  <a href={`tel:${arzt.telefon}`} className="text-blue-600 hover:underline">
+                    Tel: {arzt.telefon}
+                  </a>
+                )}
+                {arzt.email && (
+                  <a href={`mailto:${arzt.email}`} className="text-blue-600 hover:underline">
+                    {arzt.email}
+                  </a>
+                )}
                 {arzt.website_url && (
                   <a href={arzt.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     Website
