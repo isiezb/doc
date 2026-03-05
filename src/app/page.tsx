@@ -118,10 +118,6 @@ export default async function Home({
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Schoenheitsarzt-Verzeichnis
           </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Facharzt oder Fantasietitel? Wir zeigen die Wahrheit.
-          </p>
-
           <form method="GET" className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
