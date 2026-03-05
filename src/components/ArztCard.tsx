@@ -1,0 +1,111 @@
+interface ArztCardProps {
+  arzt: {
+    vorname: string;
+    nachname: string;
+    titel: string;
+    ist_facharzt: number;
+    facharzttitel: string | null;
+    selbstbezeichnung: string;
+    stadt: string;
+    bundesland: string;
+    facharzt_seit_jahr: number | null;
+    approbation_jahr: number;
+    klinik_name: string | null;
+    klinik_typ: string | null;
+    klinik_gmbh: number;
+    eingriffe: string | null;
+    bew_score: number | null;
+    bew_total: number | null;
+  };
+}
+
+export default function ArztCard({ arzt }: ArztCardProps) {
+  const initials = `${arzt.vorname[0]}${arzt.nachname[0]}`;
+  const fullName = [arzt.titel, arzt.vorname, arzt.nachname].filter(Boolean).join(" ");
+  const currentYear = new Date().getFullYear();
+  const yearsExperience = arzt.facharzt_seit_jahr
+    ? currentYear - arzt.facharzt_seit_jahr
+    : currentYear - arzt.approbation_jahr;
+  const eingriffeList = arzt.eingriffe ? arzt.eingriffe.split(",") : [];
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="flex gap-4">
+        {/* Avatar */}
+        <div
+          className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 ${
+            arzt.ist_facharzt ? "bg-green-600" : "bg-gray-400"
+          }`}
+        >
+          {initials}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Name + Badge */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-semibold text-gray-900 text-lg">{fullName}</h2>
+            {arzt.ist_facharzt ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                Facharzt
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                Kein Facharzttitel
+              </span>
+            )}
+          </div>
+
+          {/* Selbstbezeichnung */}
+          <p className="text-sm text-gray-600 mt-0.5">
+            {arzt.selbstbezeichnung}
+            {arzt.klinik_name && (
+              <span className="text-gray-400"> · {arzt.klinik_name}</span>
+            )}
+          </p>
+
+          {/* Meta row */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
+            <span>{arzt.stadt}</span>
+            <span>{yearsExperience} Jahre Erfahrung</span>
+            {arzt.bew_score && (
+              <span>
+                {arzt.bew_score}/5 ({arzt.bew_total} Bewertungen)
+              </span>
+            )}
+          </div>
+
+          {/* Eingriff-Tags */}
+          {eingriffeList.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {eingriffeList.slice(0, 5).map((e) => (
+                <span
+                  key={e}
+                  className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
+                >
+                  {e.trim()}
+                </span>
+              ))}
+              {eingriffeList.length > 5 && (
+                <span className="text-xs text-gray-400">
+                  +{eingriffeList.length - 5} weitere
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Warnings */}
+          {!arzt.ist_facharzt && (
+            <p className="text-xs text-red-600 mt-2">
+              Kein anerkannter Facharzttitel fuer Plastische und Aesthetische Chirurgie nachweisbar.
+            </p>
+          )}
+          {arzt.klinik_gmbh === 1 && arzt.klinik_typ === "schoenheitskette" && (
+            <p className="text-xs text-amber-600 mt-1">
+              Angestellt in einer Schoenheitskette (GmbH-Struktur)
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
