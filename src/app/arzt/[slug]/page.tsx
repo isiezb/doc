@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDb, initDb } from "@/lib/db";
+import { query, queryOne } from "@/lib/db";
 
 interface Spezialisierung {
   kategorie: string;
@@ -16,14 +16,14 @@ interface WerdegangEntry {
   von_jahr: number;
   bis_jahr: number | null;
   beschreibung: string;
-  verifiziert: number;
+  verifiziert: boolean;
 }
 
 interface Mitgliedschaft {
   gesellschaft: string;
   mitglied_seit_jahr: number;
   mitgliedsstatus: string;
-  verifiziert: number;
+  verifiziert: boolean;
   quelle_url: string | null;
 }
 
@@ -40,7 +40,7 @@ interface Promotion {
   thema: string;
   universitaet: string;
   jahr: number;
-  verifiziert: number;
+  verifiziert: boolean;
 }
 
 interface ArztProfile {
@@ -49,10 +49,10 @@ interface ArztProfile {
   nachname: string;
   titel: string;
   geschlecht: string;
-  ist_facharzt: number;
+  ist_facharzt: boolean;
   facharzttitel: string | null;
   selbstbezeichnung: string;
-  approbation_verifiziert: number;
+  approbation_verifiziert: boolean;
   kammer_id: string | null;
   approbation_jahr: number;
   facharzt_seit_jahr: number | null;
@@ -65,8 +65,8 @@ interface ArztProfile {
   klinik_name: string | null;
   klinik_typ: string | null;
   klinik_website: string | null;
-  klinik_gmbh: number;
-  klinik_tuev: number;
+  klinik_gmbh: boolean;
+  klinik_tuev: boolean;
   klinik_fallzahlen: number | null;
 }
 
@@ -96,40 +96,43 @@ export default async function ArztProfilPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  initDb();
-  const db = getDb();
   const { slug } = await params;
 
-  const arzt = db.prepare(`
+  const arzt = await queryOne(`
     SELECT a.*, k.name AS klinik_name, k.typ AS klinik_typ,
            k.website_url AS klinik_website, k.impressum_gmbh AS klinik_gmbh,
            k.tuev_zertifiziert AS klinik_tuev, k.fallzahlen_plastik AS klinik_fallzahlen
     FROM aerzte a
     LEFT JOIN kliniken k ON a.klinik_id = k.id
-    WHERE a.seo_slug = ?
-  `).get(slug) as ArztProfile | undefined;
+    WHERE a.seo_slug = $1
+  `, [slug]) as ArztProfile | null;
 
   if (!arzt) notFound();
 
-  const spezialisierungen = db.prepare(
-    "SELECT kategorie, eingriff, erfahrungslevel FROM spezialisierungen WHERE arzt_id = ? ORDER BY kategorie, eingriff"
-  ).all(arzt.id) as Spezialisierung[];
+  const spezialisierungen = await query(
+    "SELECT kategorie, eingriff, erfahrungslevel FROM spezialisierungen WHERE arzt_id = $1 ORDER BY kategorie, eingriff",
+    [arzt.id]
+  ) as Spezialisierung[];
 
-  const werdegang = db.prepare(
-    "SELECT typ, institution, stadt, land, von_jahr, bis_jahr, beschreibung, verifiziert FROM werdegang WHERE arzt_id = ? ORDER BY von_jahr DESC"
-  ).all(arzt.id) as WerdegangEntry[];
+  const werdegang = await query(
+    "SELECT typ, institution, stadt, land, von_jahr, bis_jahr, beschreibung, verifiziert FROM werdegang WHERE arzt_id = $1 ORDER BY von_jahr DESC",
+    [arzt.id]
+  ) as WerdegangEntry[];
 
-  const mitgliedschaften = db.prepare(
-    "SELECT gesellschaft, mitglied_seit_jahr, mitgliedsstatus, verifiziert, quelle_url FROM mitgliedschaften WHERE arzt_id = ?"
-  ).all(arzt.id) as Mitgliedschaft[];
+  const mitgliedschaften = await query(
+    "SELECT gesellschaft, mitglied_seit_jahr, mitgliedsstatus, verifiziert, quelle_url FROM mitgliedschaften WHERE arzt_id = $1",
+    [arzt.id]
+  ) as Mitgliedschaft[];
 
-  const promotion = db.prepare(
-    "SELECT titel, thema, universitaet, jahr, verifiziert FROM promotionen WHERE arzt_id = ?"
-  ).get(arzt.id) as Promotion | undefined;
+  const promotion = await queryOne(
+    "SELECT titel, thema, universitaet, jahr, verifiziert FROM promotionen WHERE arzt_id = $1",
+    [arzt.id]
+  ) as Promotion | null;
 
-  const preise = db.prepare(
-    "SELECT eingriff, preis_von, preis_bis, waehrung, quelle FROM preise WHERE arzt_id = ? ORDER BY eingriff"
-  ).all(arzt.id) as Preis[];
+  const preise = await query(
+    "SELECT eingriff, preis_von, preis_bis, waehrung, quelle FROM preise WHERE arzt_id = $1 ORDER BY eingriff",
+    [arzt.id]
+  ) as Preis[];
 
   const fullName = [arzt.titel, arzt.vorname, arzt.nachname].filter(Boolean).join(" ");
 
@@ -233,7 +236,7 @@ export default async function ArztProfilPage({
                         <span className="text-xs text-gray-400">
                           {w.von_jahr}{w.bis_jahr ? `–${w.bis_jahr}` : "–heute"}
                         </span>
-                        {w.verifiziert === 1 && (
+                        {w.verifiziert && (
                           <span className="text-xs text-green-600">verifiziert</span>
                         )}
                       </div>
@@ -260,7 +263,7 @@ export default async function ArztProfilPage({
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-sm text-gray-900">{m.gesellschaft}</span>
-                    {m.verifiziert === 1 && (
+                    {m.verifiziert && (
                       <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
                         verifiziert
                       </span>
@@ -282,7 +285,7 @@ export default async function ArztProfilPage({
             <p className="text-sm text-gray-900 font-medium">{promotion.titel} ({promotion.jahr})</p>
             <p className="text-sm text-gray-600 mt-1">{promotion.thema}</p>
             <p className="text-sm text-gray-500">{promotion.universitaet}</p>
-            {promotion.verifiziert === 1 && (
+            {promotion.verifiziert && (
               <span className="inline-block mt-2 text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
                 verifiziert
               </span>
@@ -317,7 +320,7 @@ export default async function ArztProfilPage({
             <div className="space-y-2 text-sm">
               <p className="font-medium text-gray-900">{arzt.klinik_name}</p>
               <p className="text-gray-600">Typ: {arzt.klinik_typ?.replace(/_/g, " ")}</p>
-              {arzt.klinik_tuev === 1 && (
+              {arzt.klinik_tuev && (
                 <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded">
                   TUEV-zertifiziert
                 </span>
@@ -327,7 +330,7 @@ export default async function ArztProfilPage({
                   Fallzahlen Plastische Chirurgie: {arzt.klinik_fallzahlen}
                 </p>
               )}
-              {arzt.klinik_gmbh === 1 && (
+              {arzt.klinik_gmbh && (
                 <div className="bg-amber-50 border border-amber-200 rounded p-3 mt-2">
                   <p className="text-sm text-amber-800">
                     <strong>Hinweis:</strong> Diese Klinik ist als GmbH organisiert.

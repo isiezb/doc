@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getDb, initDb } from "@/lib/db";
+import { query, queryOne } from "@/lib/db";
 import SearchFilters from "@/components/SearchFilters";
 import ArztCard from "@/components/ArztCard";
 import StatsBar from "@/components/StatsBar";
@@ -10,7 +10,7 @@ interface Arzt {
   nachname: string;
   titel: string;
   geschlecht: string;
-  ist_facharzt: number;
+  ist_facharzt: boolean;
   facharzttitel: string | null;
   selbstbezeichnung: string;
   stadt: string;
@@ -21,7 +21,7 @@ interface Arzt {
   seo_slug: string;
   klinik_name: string | null;
   klinik_typ: string | null;
-  klinik_gmbh: number;
+  klinik_gmbh: boolean;
   eingriffe: string | null;
 }
 
@@ -39,31 +39,34 @@ export default async function Home({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  initDb();
-  const db = getDb();
   const sp = await searchParams;
 
   const conditions: string[] = [];
   const values: (string | number)[] = [];
+  let idx = 1;
 
   if (sp.q) {
-    conditions.push("(a.vorname || ' ' || a.nachname LIKE ? OR a.nachname LIKE ?)");
+    conditions.push(`(a.vorname || ' ' || a.nachname ILIKE $${idx} OR a.nachname ILIKE $${idx + 1})`);
     values.push(`%${sp.q}%`, `%${sp.q}%`);
+    idx += 2;
   }
   if (sp.eingriff) {
-    conditions.push("a.id IN (SELECT arzt_id FROM spezialisierungen WHERE eingriff = ?)");
+    conditions.push(`a.id IN (SELECT arzt_id FROM spezialisierungen WHERE eingriff = $${idx})`);
     values.push(sp.eingriff);
+    idx += 1;
   }
   if (sp.stadt) {
-    conditions.push("a.stadt = ?");
+    conditions.push(`a.stadt = $${idx}`);
     values.push(sp.stadt);
+    idx += 1;
   }
   if (sp.bundesland) {
-    conditions.push("a.bundesland = ?");
+    conditions.push(`a.bundesland = $${idx}`);
     values.push(sp.bundesland);
+    idx += 1;
   }
   if (sp.nur_fachaezte === "1") {
-    conditions.push("a.ist_facharzt = 1");
+    conditions.push("a.ist_facharzt = true");
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -77,38 +80,38 @@ export default async function Home({
       orderBy = "a.nachname ASC, a.vorname ASC";
   }
 
-  const aerzte = db.prepare(`
+  const aerzte = await query(`
     SELECT
       a.*,
       k.name AS klinik_name, k.typ AS klinik_typ, k.impressum_gmbh AS klinik_gmbh,
-      (SELECT GROUP_CONCAT(DISTINCT eingriff) FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe
+      (SELECT STRING_AGG(DISTINCT eingriff, ',') FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe
     FROM aerzte a
     LEFT JOIN kliniken k ON a.klinik_id = k.id
     ${where}
     ORDER BY ${orderBy}
     LIMIT 50
-  `).all(...values) as Arzt[];
+  `, values) as Arzt[];
 
-  const stats = db.prepare(`
+  const stats = await queryOne(`
     SELECT
-      COUNT(*) AS gesamt,
-      SUM(ist_facharzt) AS fachaezte,
-      COUNT(*) - SUM(ist_facharzt) AS ohne_facharzttitel,
-      COUNT(DISTINCT stadt) AS staedte
+      COUNT(*)::int AS gesamt,
+      COUNT(*) FILTER (WHERE ist_facharzt)::int AS fachaezte,
+      COUNT(*) FILTER (WHERE NOT ist_facharzt)::int AS ohne_facharzttitel,
+      COUNT(DISTINCT stadt)::int AS staedte
     FROM aerzte
-  `).get() as { gesamt: number; fachaezte: number; ohne_facharzttitel: number; staedte: number };
+  `) as { gesamt: number; fachaezte: number; ohne_facharzttitel: number; staedte: number };
 
-  const eingriffe = db.prepare(`
+  const eingriffe = await query(`
     SELECT DISTINCT eingriff FROM spezialisierungen ORDER BY eingriff
-  `).all() as { eingriff: string }[];
+  `) as { eingriff: string }[];
 
-  const staedte = db.prepare(`
-    SELECT DISTINCT stadt FROM aerzte ORDER BY stadt
-  `).all() as { stadt: string }[];
+  const staedte = await query(`
+    SELECT DISTINCT stadt FROM aerzte WHERE stadt IS NOT NULL ORDER BY stadt
+  `) as { stadt: string }[];
 
-  const bundeslaender = db.prepare(`
-    SELECT DISTINCT bundesland FROM aerzte ORDER BY bundesland
-  `).all() as { bundesland: string }[];
+  const bundeslaender = await query(`
+    SELECT DISTINCT bundesland FROM aerzte WHERE bundesland IS NOT NULL ORDER BY bundesland
+  `) as { bundesland: string }[];
 
   return (
     <main className="min-h-screen">

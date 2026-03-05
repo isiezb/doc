@@ -9,7 +9,7 @@ interface ArztCardProps {
     vorname: string;
     nachname: string;
     titel: string;
-    ist_facharzt: number;
+    ist_facharzt: boolean;
     facharzttitel: string | null;
     selbstbezeichnung: string;
     land: string;
@@ -19,7 +19,7 @@ interface ArztCardProps {
     approbation_jahr: number;
     klinik_name: string | null;
     klinik_typ: string | null;
-    klinik_gmbh: number;
+    klinik_gmbh: boolean;
     eingriffe: string | null;
   };
 }
@@ -99,7 +99,7 @@ export default function ArztCard({ arzt }: ArztCardProps) {
               Kein anerkannter Facharzttitel fuer Plastische und Aesthetische Chirurgie nachweisbar.
             </p>
           )}
-          {arzt.klinik_gmbh === 1 && arzt.klinik_typ === "schoenheitskette" && (
+          {arzt.klinik_gmbh && arzt.klinik_typ === "schoenheitskette" && (
             <p className="text-xs text-amber-600 mt-1">
               Angestellt in einer Schoenheitskette (GmbH-Struktur)
             </p>

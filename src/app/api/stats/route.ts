@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { getDb, initDb } from "@/lib/db";
+import { queryOne } from "@/lib/db";
 
 export async function GET() {
-  initDb();
-  const db = getDb();
-
-  const stats = db.prepare(`
+  const stats = await queryOne(`
     SELECT
-      COUNT(*) AS gesamt,
-      SUM(ist_facharzt) AS fachaezte,
-      COUNT(*) - SUM(ist_facharzt) AS ohne_facharzttitel,
-      COUNT(DISTINCT stadt) AS staedte
+      COUNT(*)::int AS gesamt,
+      COUNT(*) FILTER (WHERE ist_facharzt)::int AS fachaezte,
+      COUNT(*) FILTER (WHERE NOT ist_facharzt)::int AS ohne_facharzttitel,
+      COUNT(DISTINCT stadt)::int AS staedte
     FROM aerzte
-  `).get() as Record<string, number>;
+  `);
 
   return NextResponse.json(stats);
 }

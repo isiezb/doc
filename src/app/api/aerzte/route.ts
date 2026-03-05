@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb, initDb } from "@/lib/db";
+import { query, queryOne } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
-  initDb();
-  const db = getDb();
   const params = request.nextUrl.searchParams;
 
   const q = params.get("q");
@@ -17,25 +15,30 @@ export async function GET(request: NextRequest) {
 
   const conditions: string[] = [];
   const values: (string | number)[] = [];
+  let idx = 1;
 
   if (q) {
-    conditions.push("(a.vorname || ' ' || a.nachname LIKE ? OR a.nachname LIKE ?)");
+    conditions.push(`(a.vorname || ' ' || a.nachname ILIKE $${idx} OR a.nachname ILIKE $${idx + 1})`);
     values.push(`%${q}%`, `%${q}%`);
+    idx += 2;
   }
   if (eingriff) {
-    conditions.push("a.id IN (SELECT arzt_id FROM spezialisierungen WHERE eingriff = ?)");
+    conditions.push(`a.id IN (SELECT arzt_id FROM spezialisierungen WHERE eingriff = $${idx})`);
     values.push(eingriff);
+    idx += 1;
   }
   if (stadt) {
-    conditions.push("a.stadt = ?");
+    conditions.push(`a.stadt = $${idx}`);
     values.push(stadt);
+    idx += 1;
   }
   if (bundesland) {
-    conditions.push("a.bundesland = ?");
+    conditions.push(`a.bundesland = $${idx}`);
     values.push(bundesland);
+    idx += 1;
   }
   if (nurFachaezte) {
-    conditions.push("a.ist_facharzt = 1");
+    conditions.push("a.ist_facharzt = true");
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -50,31 +53,25 @@ export async function GET(request: NextRequest) {
       orderBy = "a.nachname ASC, a.vorname ASC";
   }
 
-  const sql = `
+  const aerzte = await query(`
     SELECT
       a.*,
       k.name AS klinik_name,
       k.typ AS klinik_typ,
       k.impressum_gmbh AS klinik_gmbh,
-      (SELECT GROUP_CONCAT(DISTINCT eingriff) FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe
+      (SELECT STRING_AGG(DISTINCT eingriff, ',') FROM spezialisierungen WHERE arzt_id = a.id) AS eingriffe
     FROM aerzte a
     LEFT JOIN kliniken k ON a.klinik_id = k.id
     ${where}
     ORDER BY ${orderBy}
-    LIMIT ? OFFSET ?
-  `;
+    LIMIT $${idx} OFFSET $${idx + 1}
+  `, [...values, limit, offset]);
 
-  values.push(limit, offset);
+  const countResult = await queryOne(`
+    SELECT COUNT(*)::int as total FROM aerzte a ${where}
+  `, values);
 
-  const aerzte = db.prepare(sql).all(...values);
-
-  const countSql = `
-    SELECT COUNT(*) as total
-    FROM aerzte a
-    ${where}
-  `;
-  const countValues = values.slice(0, -2);
-  const { total } = db.prepare(countSql).get(...countValues) as { total: number };
+  const total = (countResult as Record<string, unknown>)?.total ?? 0;
 
   return NextResponse.json({ aerzte, total, limit, offset });
 }
