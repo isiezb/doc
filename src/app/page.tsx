@@ -160,34 +160,29 @@ export default async function Home({
       </nav>
 
       {/* HERO */}
-      <div className="hero bg-[var(--navy)] px-10 pt-16 pb-[72px] relative overflow-hidden">
+      <div className="hero bg-[var(--navy)] px-10 pt-8 pb-12 relative overflow-hidden">
         <div className="max-w-[680px] mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[rgba(77,217,192,0.15)] border border-[rgba(77,217,192,0.3)] text-[#4dd9c0] text-xs font-medium tracking-widest uppercase py-1.5 px-3.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 bg-[#4dd9c0] rounded-full" />
-            Ärztekammer-geprüft · DACH-weit
-          </div>
-
-          <h1 className="font-['Fraunces',serif] text-[clamp(32px,5vw,52px)] font-light text-white leading-[1.1] tracking-tight mb-4">
+          <h1 className="font-['Fraunces',serif] text-[clamp(26px,4vw,40px)] font-light text-white leading-[1.15] tracking-tight mb-3">
             Ist dein Chirurg <em className="italic text-[#4dd9c0]">wirklich</em> Facharzt?
           </h1>
 
-          <p className="text-white/55 text-base leading-relaxed max-w-[480px] mx-auto mb-10 font-light">
-            Wir prüfen Facharzttitel direkt bei den Ärztekammern, dem MedReg und der ÖÄK. Kein Selbstmarketing. Keine Bewertungen.
+          <p className="text-white/50 text-sm leading-relaxed max-w-[460px] mx-auto mb-6 font-light">
+            Facharzttitel geprüft bei Ärztekammern, MedReg und ÖÄK. Kein Selbstmarketing. Keine Bewertungen.
           </p>
 
-          <form method="GET" className="flex bg-white rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.25)] max-w-[580px] mx-auto">
+          <form method="GET" className="flex bg-white rounded-lg overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.25)] max-w-[540px] mx-auto">
             <input
               type="text"
               name="q"
               placeholder="Name oder Klinik suchen..."
               defaultValue={sp.q || ""}
-              className="flex-1 px-5 py-4 border-none outline-none text-[15px] font-['DM_Sans',sans-serif] text-[var(--text)] placeholder:text-[var(--muted)]"
+              className="flex-1 px-4 py-3 border-none outline-none text-sm font-['DM_Sans',sans-serif] text-[var(--text)] placeholder:text-[var(--muted)]"
             />
-            <div className="w-px bg-[var(--border)] my-2.5" />
+            <div className="w-px bg-[var(--border)] my-2" />
             <select
               name="stadt"
               defaultValue={sp.stadt || ""}
-              className="px-5 py-4 border-none outline-none text-[15px] font-['DM_Sans',sans-serif] text-[var(--text)] bg-transparent min-w-[160px]"
+              className="px-4 py-3 border-none outline-none text-sm font-['DM_Sans',sans-serif] text-[var(--text)] bg-transparent min-w-[140px]"
             >
               <option value="">Alle Städte</option>
               {staedte.map((s) => (
@@ -196,7 +191,7 @@ export default async function Home({
             </select>
             <button
               type="submit"
-              className="bg-[var(--teal)] text-white border-none px-7 text-[15px] font-medium font-['DM_Sans',sans-serif] cursor-pointer hover:bg-[#0a6855] transition-colors"
+              className="bg-[var(--teal)] text-white border-none px-6 text-sm font-medium font-['DM_Sans',sans-serif] cursor-pointer hover:bg-[#0a6855] transition-colors"
             >
               Suchen
             </button>
@@ -208,7 +203,7 @@ export default async function Home({
       <StatsBar stats={stats} />
 
       {/* MAIN LAYOUT */}
-      <div className="max-w-[1100px] mx-auto px-10 py-8 grid grid-cols-[240px_1fr] gap-8 items-start">
+      <div className="max-w-[1340px] mx-auto px-6 py-6 grid grid-cols-[200px_1fr] gap-6 items-start">
         {/* SIDEBAR */}
         <aside>
           <SearchFilters
@@ -220,20 +215,16 @@ export default async function Home({
         {/* RESULTS */}
         <div>
           {/* No Ratings Banner */}
-          <div id="warum" className="bg-[var(--navy)] rounded-xl p-5 flex gap-4 items-start mb-5">
-            <div className="text-xl shrink-0 mt-0.5">⚖️</div>
-            <div>
-              <h4 className="font-['Fraunces',serif] text-[15px] font-semibold text-white mb-1">
-                Warum wir keine Bewertungen führen
-              </h4>
-              <p className="text-xs text-white/55 leading-relaxed">
-                Reiche Praxen klagen schlechte Bewertungen weg. Unser einziges Qualitätsmerkmal ist der Ärztekammer-geprüfte Facharzttitel — den kann niemand kaufen.
-              </p>
-            </div>
+          <div id="warum" className="bg-[var(--navy)] rounded-lg px-4 py-3 flex gap-3 items-center mb-4">
+            <span className="text-base shrink-0">⚖️</span>
+            <p className="text-xs text-white/65">
+              <strong className="text-white font-medium">Keine Bewertungen.</strong>{" "}
+              Unser einziges Qualitätsmerkmal ist der Ärztekammer-geprüfte Facharzttitel — den kann niemand kaufen.
+            </p>
           </div>
 
           {/* Results Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-[var(--muted)]">
               <strong className="text-[var(--text)] font-medium">{totalFiltered} Fachärzte</strong> gefunden · Seite {page} von {totalPages}
             </span>
@@ -256,7 +247,7 @@ export default async function Home({
           </div>
 
           {/* CARDS GRID */}
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
             {aerzte.map((arzt) => (
               <Link key={arzt.id} href={`/arzt/${arzt.seo_slug}`} className="no-underline text-inherit">
                 <ArztCard arzt={arzt} />

@@ -9,31 +9,31 @@ interface StatsBarProps {
 
 export default function StatsBar({ stats }: StatsBarProps) {
   return (
-    <div className="bg-[var(--white)] border-b border-[var(--border)]" style={{ padding: "0 40px" }}>
-      <div className="max-w-[1100px] mx-auto flex items-center h-14">
-        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)] first:pl-0">
-          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+    <div className="bg-[var(--white)] border-b border-[var(--border)] px-6">
+      <div className="max-w-[1340px] mx-auto flex items-center h-11">
+        <div className="flex items-center gap-2 px-5 border-r border-[var(--border)] first:pl-0">
+          <span className="font-['Fraunces',serif] text-lg font-semibold text-[var(--teal)] tracking-tight">
             {stats.gesamt}
           </span>
-          <span className="text-[13px] text-[var(--muted)]">Verifizierte Fachärzte</span>
+          <span className="text-xs text-[var(--muted)]">Fachärzte</span>
         </div>
-        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)]">
-          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+        <div className="flex items-center gap-2 px-5 border-r border-[var(--border)]">
+          <span className="font-['Fraunces',serif] text-lg font-semibold text-[var(--teal)] tracking-tight">
             {stats.staedte}
           </span>
-          <span className="text-[13px] text-[var(--muted)]">Städte</span>
+          <span className="text-xs text-[var(--muted)]">Städte</span>
         </div>
-        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)]">
-          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+        <div className="flex items-center gap-2 px-5 border-r border-[var(--border)]">
+          <span className="font-['Fraunces',serif] text-lg font-semibold text-[var(--teal)] tracking-tight">
             3
           </span>
-          <span className="text-[13px] text-[var(--muted)]">Länder (DE / AT / CH)</span>
+          <span className="text-xs text-[var(--muted)]">Länder</span>
         </div>
-        <div className="flex items-center gap-2.5 px-7">
-          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+        <div className="flex items-center gap-2 px-5">
+          <span className="font-['Fraunces',serif] text-lg font-semibold text-[var(--teal)] tracking-tight">
             0
           </span>
-          <span className="text-[13px] text-[var(--muted)]">Unbewiesene Titel</span>
+          <span className="text-xs text-[var(--muted)]">Unbewiesene Titel</span>
         </div>
       </div>
     </div>
