@@ -1,7 +1,14 @@
 const LAND_LABELS: Record<string, string> = {
   DE: "Deutschland",
-  AT: "Oesterreich",
+  AT: "Österreich",
   CH: "Schweiz",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  aerztekammer_de: "Ärztekammer",
+  kbv: "KBV (116117)",
+  medreg: "MedReg",
+  oegk: "OEGK",
 };
 
 interface ArztCardProps {
@@ -21,6 +28,9 @@ interface ArztCardProps {
     klinik_typ: string | null;
     klinik_gmbh: boolean;
     eingriffe: string | null;
+    source: string | null;
+    verified: boolean;
+    gkv_zugelassen: boolean | null;
   };
 }
 
@@ -45,7 +55,7 @@ export default function ArztCard({ arzt }: ArztCardProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* Name + Badge */}
+          {/* Name + Badges */}
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-semibold text-gray-900 text-lg">{fullName}</h2>
             {arzt.ist_facharzt ? (
@@ -55,6 +65,16 @@ export default function ArztCard({ arzt }: ArztCardProps) {
             ) : (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
                 Kein Facharzttitel
+              </span>
+            )}
+            {arzt.verified && arzt.source && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                {SOURCE_LABELS[arzt.source] || arzt.source}
+              </span>
+            )}
+            {arzt.gkv_zugelassen && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                GKV
               </span>
             )}
           </div>

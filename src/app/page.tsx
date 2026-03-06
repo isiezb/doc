@@ -23,6 +23,9 @@ interface Arzt {
   klinik_typ: string | null;
   klinik_gmbh: boolean;
   eingriffe: string | null;
+  source: string | null;
+  verified: boolean;
+  gkv_zugelassen: boolean | null;
 }
 
 interface SearchParams {
@@ -30,6 +33,7 @@ interface SearchParams {
   eingriff?: string;
   stadt?: string;
   bundesland?: string;
+  land?: string;
   nur_fachaezte?: string;
   sort?: string;
   page?: string;
@@ -70,6 +74,11 @@ export default async function Home({
   if (sp.bundesland) {
     conditions.push(`a.bundesland = $${idx}`);
     values.push(sp.bundesland);
+    idx += 1;
+  }
+  if (sp.land) {
+    conditions.push(`a.land = $${idx}`);
+    values.push(sp.land);
     idx += 1;
   }
   if (sp.nur_fachaezte === "1") {
@@ -134,9 +143,11 @@ export default async function Home({
       {/* Hero */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Schoenheitsarzt-Verzeichnis
-          </h1>
+          <Link href="/" className="inline-block mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Schönheitsarzt-Verzeichnis
+            </h1>
+          </Link>
           <form method="GET" className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"

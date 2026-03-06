@@ -5,6 +5,7 @@ interface SearchFiltersProps {
     eingriff?: string;
     stadt?: string;
     bundesland?: string;
+    land?: string;
     nur_fachaezte?: string;
     sort?: string;
   };
@@ -20,6 +21,21 @@ export default function SearchFilters({ bundeslaender, currentParams }: SearchFi
       {currentParams.eingriff && <input type="hidden" name="eingriff" value={currentParams.eingriff} />}
       {currentParams.stadt && <input type="hidden" name="stadt" value={currentParams.stadt} />}
       {currentParams.sort && <input type="hidden" name="sort" value={currentParams.sort} />}
+
+      {/* Land / Country */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Land</label>
+        <select
+          name="land"
+          defaultValue={currentParams.land || ""}
+          className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white"
+        >
+          <option value="">Alle Länder</option>
+          <option value="DE">Deutschland</option>
+          <option value="AT">Österreich</option>
+          <option value="CH">Schweiz</option>
+        </select>
+      </div>
 
       {/* Nur Fachärzte */}
       <div>
