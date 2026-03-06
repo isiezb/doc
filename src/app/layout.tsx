@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "FacharztRegister | Ist dein Chirurg wirklich Facharzt?",
   description:
-    "Das transparente Verzeichnis für Plastische Chirurgen in DACH. Wir zeigen, wer wirklich Facharzt ist — verifiziert durch Ärztekammern, MedReg und ÖÄK.",
+    "Das transparente Verzeichnis für Plastische Chirurgen in DACH. Wir zeigen, wer wirklich Facharzt ist — geprüft anhand der Ärztekammern, MedReg und ÖÄK.",
 };
 
 export default function RootLayout({

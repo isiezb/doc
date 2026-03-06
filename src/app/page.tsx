@@ -164,7 +164,7 @@ export default async function Home({
         <div className="max-w-[680px] mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-[rgba(77,217,192,0.15)] border border-[rgba(77,217,192,0.3)] text-[#4dd9c0] text-xs font-medium tracking-widest uppercase py-1.5 px-3.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 bg-[#4dd9c0] rounded-full" />
-            Staatlich verifiziert · DACH-weit
+            Ärztekammer-geprüft · DACH-weit
           </div>
 
           <h1 className="font-['Fraunces',serif] text-[clamp(32px,5vw,52px)] font-light text-white leading-[1.1] tracking-tight mb-4">
@@ -172,7 +172,7 @@ export default async function Home({
           </h1>
 
           <p className="text-white/55 text-base leading-relaxed max-w-[480px] mx-auto mb-10 font-light">
-            Wir listen ausschließlich Ärzte deren Facharzttitel von einer Ärztekammer, dem MedReg oder der ÖÄK verifiziert wurde. Kein Selbstmarketing. Keine Bewertungen.
+            Wir prüfen Facharzttitel direkt bei den Ärztekammern, dem MedReg und der ÖÄK. Kein Selbstmarketing. Keine Bewertungen.
           </p>
 
           <form method="GET" className="flex bg-white rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.25)] max-w-[580px] mx-auto">
@@ -227,7 +227,7 @@ export default async function Home({
                 Warum wir keine Bewertungen führen
               </h4>
               <p className="text-xs text-white/55 leading-relaxed">
-                Reiche Praxen klagen schlechte Bewertungen weg. Unser einziges Qualitätsmerkmal ist der staatlich verifizierte Facharzttitel — den kann niemand kaufen.
+                Reiche Praxen klagen schlechte Bewertungen weg. Unser einziges Qualitätsmerkmal ist der Ärztekammer-geprüfte Facharzttitel — den kann niemand kaufen.
               </p>
             </div>
           </div>
