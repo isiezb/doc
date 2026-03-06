@@ -154,6 +154,9 @@ export default async function ArztProfilPage({
     spezGrouped[s.kategorie].push(s);
   }
 
+  const hasDetailedData = spezialisierungen.length > 0 || werdegang.length > 0 || mitgliedschaften.length > 0 || promotion || preise.length > 0;
+  const landLabel = arzt.land === "DE" ? "Deutschland" : arzt.land === "AT" ? "Österreich" : arzt.land === "CH" ? "Schweiz" : arzt.land;
+
   return (
     <main className="min-h-screen">
       {/* NAV */}
@@ -180,7 +183,12 @@ export default async function ArztProfilPage({
               <h1 className="font-['Fraunces',serif] text-2xl font-semibold text-[var(--text)] leading-tight">
                 {fullName}
               </h1>
-              <p className="text-sm text-[var(--muted)] mt-1">{arzt.selbstbezeichnung}</p>
+              {arzt.selbstbezeichnung && (
+                <p className="text-sm text-[var(--muted)] mt-1">{arzt.selbstbezeichnung}</p>
+              )}
+              {!arzt.selbstbezeichnung && arzt.facharzttitel && (
+                <p className="text-sm text-[var(--muted)] mt-1">{arzt.facharzttitel}</p>
+              )}
               {arzt.schwerpunkte && (
                 <p className="text-xs text-[var(--muted)] mt-0.5">{arzt.schwerpunkte}</p>
               )}
@@ -220,6 +228,56 @@ export default async function ArztProfilPage({
             </div>
           </div>
         </div>
+
+        {/* Basisdaten */}
+        <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+          <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-4">Basisdaten</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            {arzt.facharzttitel && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Facharzttitel</span>
+                <p className="text-[var(--text)]">{arzt.facharzttitel}</p>
+              </div>
+            )}
+            {landLabel && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Land</span>
+                <p className="text-[var(--text)]">{landLabel}</p>
+              </div>
+            )}
+            {arzt.facharzt_seit_jahr && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Facharzt seit</span>
+                <p className="text-[var(--text)]">{arzt.facharzt_seit_jahr}</p>
+              </div>
+            )}
+            {arzt.approbation_jahr && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Approbation</span>
+                <p className="text-[var(--text)]">{arzt.approbation_jahr}</p>
+              </div>
+            )}
+            {arzt.kammer_id && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Kammer-ID</span>
+                <p className="text-[var(--text)]">{arzt.kammer_id}</p>
+              </div>
+            )}
+            {arzt.position && (
+              <div>
+                <span className="text-[var(--muted)] text-xs">Position</span>
+                <p className="text-[var(--text)]">{arzt.position}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info note when limited data */}
+        {!hasDetailedData && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-xs text-blue-800">
+            Für diesen Eintrag liegen derzeit nur Basisdaten vor. Weitere Informationen werden ergänzt, sobald sie aus offiziellen Quellen verfügbar sind.
+          </div>
+        )}
 
         {/* Spezialisierungen */}
         {spezialisierungen.length > 0 && (

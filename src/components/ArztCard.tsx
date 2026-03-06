@@ -3,7 +3,7 @@ const SOURCE_LABELS: Record<string, string> = {
   kbv: "KBV (116117)",
   medreg: "MedReg",
   oegk: "OEGK",
-  arztauskunft_de: "Stiftung Gesundheit",
+  arztauskunft_de: "Arzt-Auskunft",
 };
 
 const AVATAR_COLORS = [
