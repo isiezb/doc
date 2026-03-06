@@ -352,7 +352,7 @@ export default async function Home({
             </div>
           </div>
           <div className="mt-6 pt-4 border-t border-white/10 text-white/25 text-[11px]">
-            Alle Daten stammen aus öffentlichen Ärztekammer-Verzeichnissen, KBV (116117.de), MedReg und Stiftung Gesundheit. Keine Gewähr.
+            Alle Daten stammen aus öffentlichen Ärztekammer-Verzeichnissen und offiziellen Quellen. Keine Gewähr.
           </div>
         </div>
       </footer>
