@@ -1,1 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
+
+:root {
+  --navy: #0f1f35;
+  --navy-mid: #1a3050;
+  --teal: #0d7c66;
+  --teal-light: #e6f4f1;
+  --teal-mid: #b2ddd6;
+  --sand: #f7f4ef;
+  --text: #1a2332;
+  --muted: #6b7c93;
+  --border: #e2e8f0;
+  --verified-bg: #e6f4f1;
+  --verified: #0d7c66;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--sand);
+  color: var(--text);
+}
+
+/* Hero curved bottom */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--sand);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}

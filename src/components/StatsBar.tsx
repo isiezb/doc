@@ -9,23 +9,31 @@ interface StatsBarProps {
 
 export default function StatsBar({ stats }: StatsBarProps) {
   return (
-    <div className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap gap-6 text-sm">
-        <div>
-          <span className="font-semibold text-gray-900">{stats.gesamt}</span>{" "}
-          <span className="text-gray-500">Aerzte gesamt</span>
+    <div className="bg-[var(--white)] border-b border-[var(--border)]" style={{ padding: "0 40px" }}>
+      <div className="max-w-[1100px] mx-auto flex items-center h-14">
+        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)] first:pl-0">
+          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+            {stats.gesamt}
+          </span>
+          <span className="text-[13px] text-[var(--muted)]">Verifizierte Fachärzte</span>
         </div>
-        <div>
-          <span className="font-semibold text-green-700">{stats.fachaezte}</span>{" "}
-          <span className="text-gray-500">echte Fachaezte</span>
+        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)]">
+          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+            {stats.staedte}
+          </span>
+          <span className="text-[13px] text-[var(--muted)]">Städte</span>
         </div>
-        <div>
-          <span className="font-semibold text-red-600">{stats.ohne_facharzttitel}</span>{" "}
-          <span className="text-gray-500">ohne Facharzttitel</span>
+        <div className="flex items-center gap-2.5 px-7 border-r border-[var(--border)]">
+          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+            3
+          </span>
+          <span className="text-[13px] text-[var(--muted)]">Länder (DE / AT / CH)</span>
         </div>
-        <div>
-          <span className="font-semibold text-gray-900">{stats.staedte}</span>{" "}
-          <span className="text-gray-500">Staedte</span>
+        <div className="flex items-center gap-2.5 px-7">
+          <span className="font-['Fraunces',serif] text-[22px] font-semibold text-[var(--teal)] tracking-tight">
+            0
+          </span>
+          <span className="text-[13px] text-[var(--muted)]">Unbewiesene Titel</span>
         </div>
       </div>
     </div>

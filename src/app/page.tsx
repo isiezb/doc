@@ -47,7 +47,6 @@ export default async function Home({
   searchParams: Promise<SearchParams>;
 }) {
   const rawSp = await searchParams;
-  // Strip undefined values so URLSearchParams doesn't produce "key=undefined"
   const sp = Object.fromEntries(
     Object.entries(rawSp).filter(([, v]) => v !== undefined)
   ) as SearchParams;
@@ -98,11 +97,12 @@ export default async function Home({
     case "neu":
       orderBy = "a.id DESC";
       break;
-    case "name":
-      orderBy = "a.nachname ASC, a.vorname ASC";
+    case "stadt":
+      orderBy = "a.stadt ASC NULLS LAST, a.nachname ASC";
       break;
+    case "name":
     default:
-      orderBy = "a.id DESC";
+      orderBy = "a.nachname ASC, a.vorname ASC";
   }
 
   const aerzte = await query(`
@@ -132,13 +132,14 @@ export default async function Home({
     FROM aerzte
   `) as { gesamt: number; fachaezte: number; ohne_facharzttitel: number; staedte: number };
 
-  const eingriffe = await query(`
-    SELECT DISTINCT eingriff FROM spezialisierungen ORDER BY eingriff
-  `) as { eingriff: string }[];
-
   const staedte = await query(`
-    SELECT DISTINCT stadt FROM aerzte WHERE stadt IS NOT NULL ORDER BY stadt
-  `) as { stadt: string }[];
+    SELECT stadt, COUNT(*)::int AS cnt
+    FROM aerzte
+    WHERE stadt IS NOT NULL
+    GROUP BY stadt
+    ORDER BY cnt DESC
+    LIMIT 15
+  `) as { stadt: string; cnt: number }[];
 
   const bundeslaender = await query(`
     SELECT DISTINCT bundesland FROM aerzte WHERE bundesland IS NOT NULL ORDER BY bundesland
@@ -146,95 +147,138 @@ export default async function Home({
 
   return (
     <main className="min-h-screen">
-      {/* Hero */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <Link href="/" className="inline-block mb-2">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Schönheitsarzt-Verzeichnis
-            </h1>
-          </Link>
-          <form method="GET" className="flex flex-col sm:flex-row gap-3">
+      {/* NAV */}
+      <nav className="bg-[var(--navy)] px-10 h-[60px] flex items-center justify-between sticky top-0 z-50">
+        <Link href="/" className="font-['Fraunces',serif] text-lg text-white font-semibold tracking-tight">
+          Facharzt<span className="text-[#4dd9c0]">Register</span>
+        </Link>
+        <ul className="flex gap-8 list-none">
+          <li><Link href="/" className="text-white/65 text-sm no-underline hover:text-white transition-colors">Verzeichnis</Link></li>
+          <li><Link href="#warum" className="text-white/65 text-sm no-underline hover:text-white transition-colors">Warum keine Bewertungen?</Link></li>
+          <li><Link href="#ueber" className="text-white/65 text-sm no-underline hover:text-white transition-colors">Über uns</Link></li>
+        </ul>
+      </nav>
+
+      {/* HERO */}
+      <div className="hero bg-[var(--navy)] px-10 pt-16 pb-[72px] relative overflow-hidden">
+        <div className="max-w-[680px] mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-[rgba(77,217,192,0.15)] border border-[rgba(77,217,192,0.3)] text-[#4dd9c0] text-xs font-medium tracking-widest uppercase py-1.5 px-3.5 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 bg-[#4dd9c0] rounded-full" />
+            Staatlich verifiziert · DACH-weit
+          </div>
+
+          <h1 className="font-['Fraunces',serif] text-[clamp(32px,5vw,52px)] font-light text-white leading-[1.1] tracking-tight mb-4">
+            Ist dein Chirurg <em className="italic text-[#4dd9c0]">wirklich</em> Facharzt?
+          </h1>
+
+          <p className="text-white/55 text-base leading-relaxed max-w-[480px] mx-auto mb-10 font-light">
+            Wir listen ausschließlich Ärzte deren Facharzttitel von einer Ärztekammer, dem MedReg oder der ÖÄK verifiziert wurde. Kein Selbstmarketing. Keine Bewertungen.
+          </p>
+
+          <form method="GET" className="flex bg-white rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.25)] max-w-[580px] mx-auto">
             <input
               type="text"
               name="q"
-              placeholder="Name suchen..."
+              placeholder="Name oder Klinik suchen..."
               defaultValue={sp.q || ""}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="flex-1 px-5 py-4 border-none outline-none text-[15px] font-['DM_Sans',sans-serif] text-[var(--text)] placeholder:text-[var(--muted)]"
             />
-            <select
-              name="eingriff"
-              defaultValue={sp.eingriff || ""}
-              className="px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">Alle Eingriffe</option>
-              {eingriffe.map((e) => (
-                <option key={e.eingriff} value={e.eingriff}>
-                  {e.eingriff}
-                </option>
-              ))}
-            </select>
+            <div className="w-px bg-[var(--border)] my-2.5" />
             <select
               name="stadt"
               defaultValue={sp.stadt || ""}
-              className="px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="px-5 py-4 border-none outline-none text-[15px] font-['DM_Sans',sans-serif] text-[var(--text)] bg-transparent min-w-[160px]"
             >
-              <option value="">Alle Staedte</option>
+              <option value="">Alle Städte</option>
               {staedte.map((s) => (
-                <option key={s.stadt} value={s.stadt}>
-                  {s.stadt}
-                </option>
+                <option key={s.stadt} value={s.stadt}>{s.stadt}</option>
               ))}
             </select>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              className="bg-[var(--teal)] text-white border-none px-7 text-[15px] font-medium font-['DM_Sans',sans-serif] cursor-pointer hover:bg-[#0a6855] transition-colors"
             >
               Suchen
             </button>
           </form>
         </div>
-      </header>
+      </div>
 
+      {/* STATS STRIP */}
       <StatsBar stats={stats} />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
-        <aside className="lg:w-64 shrink-0">
+      {/* MAIN LAYOUT */}
+      <div className="max-w-[1100px] mx-auto px-10 py-8 grid grid-cols-[240px_1fr] gap-8 items-start">
+        {/* SIDEBAR */}
+        <aside>
           <SearchFilters
             bundeslaender={bundeslaender.map((b) => b.bundesland)}
             currentParams={sp}
           />
         </aside>
 
-        <section className="flex-1">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-gray-600">
-              {totalFiltered} Aerzte gefunden (Seite {page} von {totalPages})
-            </p>
+        {/* RESULTS */}
+        <div>
+          {/* No Ratings Banner */}
+          <div id="warum" className="bg-[var(--navy)] rounded-xl p-5 flex gap-4 items-start mb-5">
+            <div className="text-xl shrink-0 mt-0.5">⚖️</div>
+            <div>
+              <h4 className="font-['Fraunces',serif] text-[15px] font-semibold text-white mb-1">
+                Warum wir keine Bewertungen führen
+              </h4>
+              <p className="text-xs text-white/55 leading-relaxed">
+                Reiche Praxen klagen schlechte Bewertungen weg. Unser einziges Qualitätsmerkmal ist der staatlich verifizierte Facharzttitel — den kann niemand kaufen.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-4">
+          {/* Results Header */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-[var(--muted)]">
+              <strong className="text-[var(--text)] font-medium">{totalFiltered} Fachärzte</strong> gefunden · Seite {page} von {totalPages}
+            </span>
+            <form method="GET">
+              {/* Preserve existing params */}
+              {sp.q && <input type="hidden" name="q" value={sp.q} />}
+              {sp.stadt && <input type="hidden" name="stadt" value={sp.stadt} />}
+              {sp.land && <input type="hidden" name="land" value={sp.land} />}
+              {sp.bundesland && <input type="hidden" name="bundesland" value={sp.bundesland} />}
+              <select
+                name="sort"
+                defaultValue={sp.sort || "name"}
+                className="py-1.5 px-3 border border-[var(--border)] rounded-lg text-[13px] font-['DM_Sans',sans-serif] text-[var(--text)] outline-none bg-white"
+              >
+                <option value="name">Name A–Z</option>
+                <option value="neu">Neueste zuerst</option>
+                <option value="stadt">Stadt</option>
+              </select>
+            </form>
+          </div>
+
+          {/* CARDS GRID */}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
             {aerzte.map((arzt) => (
-              <Link key={arzt.id} href={`/arzt/${arzt.seo_slug}`} className="block">
+              <Link key={arzt.id} href={`/arzt/${arzt.seo_slug}`} className="no-underline text-inherit">
                 <ArztCard arzt={arzt} />
               </Link>
             ))}
           </div>
 
           {aerzte.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Keine Aerzte mit diesen Kriterien gefunden.
+            <div className="text-center py-12 text-[var(--muted)]">
+              Keine Fachärzte mit diesen Kriterien gefunden.
             </div>
           )}
 
+          {/* PAGINATION */}
           {totalPages > 1 && (
-            <nav className="mt-8 flex items-center justify-center gap-2">
+            <nav className="flex items-center justify-center gap-1.5 mt-8">
               {page > 1 && (
                 <Link
                   href={`/?${new URLSearchParams({ ...sp, page: String(page - 1) }).toString()}`}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                  className="w-9 h-9 rounded-lg border border-[var(--border)] bg-white text-sm flex items-center justify-center text-[var(--text)] no-underline hover:border-[var(--teal)] hover:text-[var(--teal)] transition-all"
                 >
-                  Zurück
+                  ←
                 </Link>
               )}
               {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -246,15 +290,15 @@ export default async function Home({
                 }, [])
                 .map((p, i) =>
                   p === "..." ? (
-                    <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
+                    <span key={`dots-${i}`} className="px-2 text-[var(--muted)]">…</span>
                   ) : (
                     <Link
                       key={p}
                       href={`/?${new URLSearchParams({ ...sp, page: String(p) }).toString()}`}
-                      className={`px-3 py-2 rounded-lg text-sm ${
+                      className={`w-9 h-9 rounded-lg border text-sm flex items-center justify-center no-underline transition-all ${
                         p === page
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
+                          ? "bg-[var(--teal)] border-[var(--teal)] text-white"
+                          : "border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--teal)] hover:text-[var(--teal)]"
                       }`}
                     >
                       {p}
@@ -264,14 +308,14 @@ export default async function Home({
               {page < totalPages && (
                 <Link
                   href={`/?${new URLSearchParams({ ...sp, page: String(page + 1) }).toString()}`}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                  className="w-9 h-9 rounded-lg border border-[var(--border)] bg-white text-sm flex items-center justify-center text-[var(--text)] no-underline hover:border-[var(--teal)] hover:text-[var(--teal)] transition-all"
                 >
-                  Weiter
+                  →
                 </Link>
               )}
             </nav>
           )}
-        </section>
+        </div>
       </div>
     </main>
   );

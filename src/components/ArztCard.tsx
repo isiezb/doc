@@ -1,18 +1,18 @@
-const LAND_LABELS: Record<string, string> = {
-  DE: "Deutschland",
-  AT: "Österreich",
-  CH: "Schweiz",
-};
-
 const SOURCE_LABELS: Record<string, string> = {
   aerztekammer_de: "Ärztekammer",
   kbv: "KBV (116117)",
   medreg: "MedReg",
   oegk: "OEGK",
+  arztauskunft_de: "Stiftung Gesundheit",
 };
+
+const AVATAR_COLORS = [
+  "#1a3050", "#2d4a6b", "#0d7c66", "#1e4d7b", "#3d5a80", "#0a5c4f",
+];
 
 interface ArztCardProps {
   arzt: {
+    id: number;
     vorname: string;
     nachname: string;
     titel: string;
@@ -35,98 +35,51 @@ interface ArztCardProps {
 }
 
 export default function ArztCard({ arzt }: ArztCardProps) {
-  const initials = `${arzt.vorname[0]}${arzt.nachname[0]}`;
+  const initials = `${arzt.vorname?.[0] || ""}${arzt.nachname?.[0] || ""}`;
   const fullName = [arzt.titel, arzt.vorname, arzt.nachname].filter(Boolean).join(" ");
-  const currentYear = new Date().getFullYear();
-  const startYear = arzt.facharzt_seit_jahr || arzt.approbation_jahr;
-  const yearsExperience = startYear && startYear > 1950 ? currentYear - startYear : null;
-  const eingriffeList = arzt.eingriffe ? arzt.eingriffe.split(",") : [];
+  const avatarColor = AVATAR_COLORS[(arzt.id || 0) % AVATAR_COLORS.length];
+  const landLabel = arzt.land === "DE" ? "Deutschland" : arzt.land === "AT" ? "Österreich" : arzt.land === "CH" ? "Schweiz" : arzt.land;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-      <div className="flex gap-4">
-        {/* Avatar */}
+    <div
+      className="bg-white border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3.5 transition-all duration-200 hover:border-[var(--teal-mid)] hover:shadow-[0_4px_16px_rgba(13,124,102,0.1)] hover:-translate-y-px"
+    >
+      <div className="flex items-start gap-3.5">
         <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 ${
-            arzt.ist_facharzt ? "bg-green-600" : "bg-gray-400"
-          }`}
+          className="w-11 h-11 rounded-[10px] text-white font-['Fraunces',serif] text-base font-semibold flex items-center justify-center shrink-0"
+          style={{ background: avatarColor }}
         >
           {initials}
         </div>
-
         <div className="flex-1 min-w-0">
-          {/* Name + Badges */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-semibold text-gray-900 text-lg">{fullName}</h2>
-            {arzt.ist_facharzt ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                Facharzt
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                Kein Facharzttitel
-              </span>
-            )}
-            {arzt.verified && arzt.source && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
-                {SOURCE_LABELS[arzt.source] || arzt.source}
-              </span>
-            )}
-            {arzt.gkv_zugelassen && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
-                GKV
-              </span>
-            )}
+          <div className="font-['Fraunces',serif] text-[15px] font-semibold text-[var(--text)] leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
+            {fullName}
           </div>
-
-          {/* Selbstbezeichnung */}
-          <p className="text-sm text-gray-600 mt-0.5">
-            {arzt.selbstbezeichnung}
-            {arzt.klinik_name && (
-              <span className="text-gray-400"> · {arzt.klinik_name}</span>
-            )}
-          </p>
-
-          {/* Meta row */}
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
-            <span>{arzt.stadt}, {LAND_LABELS[arzt.land] || arzt.land}</span>
-            {yearsExperience !== null && (
-              <span>{yearsExperience} Jahre Erfahrung</span>
-            )}
+          <div className="text-xs text-[var(--muted)] mt-0.5">
+            {arzt.stadt}{arzt.stadt && landLabel ? ", " : ""}{landLabel}
           </div>
-
-          {/* Eingriff-Tags */}
-          {eingriffeList.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {eingriffeList.slice(0, 5).map((e) => (
-                <span
-                  key={e}
-                  className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
-                >
-                  {e.trim()}
-                </span>
-              ))}
-              {eingriffeList.length > 5 && (
-                <span className="text-xs text-gray-400">
-                  +{eingriffeList.length - 5} weitere
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Warnings */}
-          {!arzt.ist_facharzt && (
-            <p className="text-xs text-red-600 mt-2">
-              Kein anerkannter Facharzttitel fuer Plastische und Aesthetische Chirurgie nachweisbar.
-            </p>
-          )}
-          {arzt.klinik_gmbh && arzt.klinik_typ === "schoenheitskette" && (
-            <p className="text-xs text-amber-600 mt-1">
-              Angestellt in einer Schoenheitskette (GmbH-Struktur)
-            </p>
-          )}
         </div>
       </div>
+
+      {arzt.verified && (
+        <div className="inline-flex items-center gap-1.5 bg-[var(--verified-bg)] text-[var(--verified)] text-[11px] font-medium py-1 px-2.5 rounded-md w-fit">
+          <svg viewBox="0 0 12 12" fill="none" className="w-[11px] h-[11px]">
+            <path d="M10 3L5 9 2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Kammer verifiziert
+        </div>
+      )}
+
+      <div className="text-xs text-[var(--muted)] pt-2.5 border-t border-[var(--border)]">
+        {arzt.facharzttitel || arzt.selbstbezeichnung || "Plastische und Ästhetische Chirurgie"}
+      </div>
+
+      {arzt.source && (
+        <div className="text-[11px] text-[var(--muted)] flex items-center gap-1.5">
+          <span className="w-[5px] h-[5px] rounded-full bg-[var(--teal)] shrink-0" />
+          {SOURCE_LABELS[arzt.source] || arzt.source}
+        </div>
+      )}
     </div>
   );
 }

@@ -74,28 +74,32 @@ interface ArztProfile {
   klinik_gmbh: boolean;
   klinik_tuev: boolean;
   klinik_fallzahlen: number | null;
+  source: string | null;
+  verified: boolean;
 }
 
 const KATEGORIE_LABELS: Record<string, string> = {
   brust: "Brust",
   gesicht: "Gesicht",
-  koerper: "Koerper",
+  koerper: "Körper",
   minimal_invasiv: "Minimal-invasiv",
 };
 
 const LEVEL_COLORS: Record<string, string> = {
-  spezialist: "bg-green-100 text-green-800",
-  fortgeschritten: "bg-blue-100 text-blue-800",
-  basis: "bg-gray-100 text-gray-600",
+  spezialist: "bg-[var(--teal-light)] text-[var(--teal)]",
+  fortgeschritten: "bg-blue-50 text-blue-700",
+  basis: "bg-[var(--sand)] text-[var(--muted)]",
 };
 
 const TYP_LABELS: Record<string, string> = {
   studium: "Studium",
-  klinik: "Klinische Taetigkeit",
+  klinik: "Klinische Tätigkeit",
   weiterbildung: "Weiterbildung",
   promotion: "Promotion",
   zertifikat: "Zertifikat",
 };
+
+const AVATAR_COLORS = ["#1a3050", "#2d4a6b", "#0d7c66", "#1e4d7b", "#3d5a80", "#0a5c4f"];
 
 export default async function ArztProfilPage({
   params,
@@ -141,8 +145,9 @@ export default async function ArztProfilPage({
   ) as Preis[];
 
   const fullName = [arzt.titel, arzt.vorname, arzt.nachname].filter(Boolean).join(" ");
+  const initials = `${arzt.vorname?.[0] || ""}${arzt.nachname?.[0] || ""}`;
+  const avatarColor = AVATAR_COLORS[(arzt.id || 0) % AVATAR_COLORS.length];
 
-  // Group specializations by category
   const spezGrouped: Record<string, Spezialisierung[]> = {};
   for (const s of spezialisierungen) {
     if (!spezGrouped[s.kategorie]) spezGrouped[s.kategorie] = [];
@@ -150,54 +155,64 @@ export default async function ArztProfilPage({
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-bold text-gray-900 hover:text-blue-600">
-            Schönheitsarzt-Verzeichnis
-          </Link>
-          <Link href="/" className="text-sm text-blue-600 hover:text-blue-800">
-            &larr; Zurück zur Suche
-          </Link>
-        </div>
-      </div>
+    <main className="min-h-screen">
+      {/* NAV */}
+      <nav className="bg-[var(--navy)] px-10 h-[60px] flex items-center justify-between sticky top-0 z-50">
+        <Link href="/" className="font-['Fraunces',serif] text-lg text-white font-semibold tracking-tight no-underline">
+          Facharzt<span className="text-[#4dd9c0]">Register</span>
+        </Link>
+        <Link href="/" className="text-white/65 text-sm no-underline hover:text-white transition-colors">
+          ← Zurück zur Suche
+        </Link>
+      </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="max-w-[800px] mx-auto px-10 py-8 space-y-6">
+        {/* Profile Header */}
+        <div className="bg-white rounded-xl border border-[var(--border)] p-6">
           <div className="flex items-start gap-4">
             <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shrink-0 ${
-                arzt.ist_facharzt ? "bg-green-600" : "bg-gray-400"
-              }`}
+              className="w-16 h-16 rounded-xl text-white font-['Fraunces',serif] text-xl font-semibold flex items-center justify-center shrink-0"
+              style={{ background: avatarColor }}
             >
-              {arzt.vorname[0]}{arzt.nachname[0]}
+              {initials}
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{fullName}</h1>
-              <p className="text-gray-600">{arzt.selbstbezeichnung}</p>
+            <div className="flex-1">
+              <h1 className="font-['Fraunces',serif] text-2xl font-semibold text-[var(--text)] leading-tight">
+                {fullName}
+              </h1>
+              <p className="text-sm text-[var(--muted)] mt-1">{arzt.selbstbezeichnung}</p>
               {arzt.schwerpunkte && (
-                <p className="text-sm text-gray-500 mt-0.5">{arzt.schwerpunkte}</p>
+                <p className="text-xs text-[var(--muted)] mt-0.5">{arzt.schwerpunkte}</p>
               )}
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
+
+              {arzt.verified && (
+                <div className="inline-flex items-center gap-1.5 bg-[var(--verified-bg)] text-[var(--verified)] text-xs font-medium py-1 px-2.5 rounded-md mt-3">
+                  <svg viewBox="0 0 12 12" fill="none" className="w-3 h-3">
+                    <path d="M10 3L5 9 2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Kammer verifiziert
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-[var(--muted)]">
                 {arzt.strasse && <span>{arzt.strasse}</span>}
                 <span>{[arzt.plz, arzt.stadt, arzt.bundesland].filter(Boolean).join(", ")}</span>
                 {arzt.klinik_name && <span>{arzt.klinik_name}</span>}
               </div>
+
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
                 {arzt.telefon && (
-                  <a href={`tel:${arzt.telefon}`} className="text-blue-600 hover:underline">
+                  <a href={`tel:${arzt.telefon}`} className="text-[var(--teal)] no-underline hover:underline">
                     Tel: {arzt.telefon}
                   </a>
                 )}
                 {arzt.email && (
-                  <a href={`mailto:${arzt.email}`} className="text-blue-600 hover:underline">
+                  <a href={`mailto:${arzt.email}`} className="text-[var(--teal)] no-underline hover:underline">
                     {arzt.email}
                   </a>
                 )}
                 {arzt.website_url && (
-                  <a href={arzt.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a href={arzt.website_url} target="_blank" rel="noopener noreferrer" className="text-[var(--teal)] no-underline hover:underline">
                     Website
                   </a>
                 )}
@@ -208,26 +223,24 @@ export default async function ArztProfilPage({
 
         {/* Spezialisierungen */}
         {spezialisierungen.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Spezialisierungen</h2>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-4">Spezialisierungen</h2>
             <div className="space-y-4">
               {Object.entries(spezGrouped).map(([kat, items]) => (
                 <div key={kat}>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">
+                  <h3 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">
                     {KATEGORIE_LABELS[kat] || kat}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {items.map((s) => (
                       <span
                         key={s.eingriff}
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                          LEVEL_COLORS[s.erfahrungslevel] || "bg-gray-100 text-gray-600"
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs ${
+                          LEVEL_COLORS[s.erfahrungslevel] || "bg-[var(--sand)] text-[var(--muted)]"
                         }`}
                       >
                         {s.eingriff}
-                        <span className="ml-1.5 text-xs opacity-70">
-                          ({s.erfahrungslevel})
-                        </span>
+                        <span className="ml-1.5 opacity-70">({s.erfahrungslevel})</span>
                       </span>
                     ))}
                   </div>
@@ -239,37 +252,37 @@ export default async function ArztProfilPage({
 
         {/* Werdegang Timeline */}
         {werdegang.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Werdegang</h2>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-4">Werdegang</h2>
             <div className="relative">
-              <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200" />
+              <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-[var(--border)]" />
               <div className="space-y-4">
                 {werdegang.map((w, i) => (
                   <div key={i} className="relative pl-8">
                     <div
                       className={`absolute left-1.5 top-1.5 w-3 h-3 rounded-full border-2 ${
                         w.verifiziert
-                          ? "bg-green-500 border-green-500"
-                          : "bg-white border-gray-300"
+                          ? "bg-[var(--teal)] border-[var(--teal)]"
+                          : "bg-white border-[var(--border)]"
                       }`}
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-[var(--text)]">
                           {TYP_LABELS[w.typ] || w.typ}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-[var(--muted)]">
                           {w.von_jahr}{w.bis_jahr ? `–${w.bis_jahr}` : "–heute"}
                         </span>
                         {w.verifiziert && (
-                          <span className="text-xs text-green-600">verifiziert</span>
+                          <span className="text-xs text-[var(--teal)]">verifiziert</span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-[var(--muted)]">
                         {w.institution}, {w.stadt}
                       </p>
                       {w.beschreibung && (
-                        <p className="text-xs text-gray-500 mt-0.5">{w.beschreibung}</p>
+                        <p className="text-xs text-[var(--muted)] mt-0.5">{w.beschreibung}</p>
                       )}
                     </div>
                   </div>
@@ -281,20 +294,20 @@ export default async function ArztProfilPage({
 
         {/* Fachgesellschaften */}
         {mitgliedschaften.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Fachgesellschaften</h2>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-4">Fachgesellschaften</h2>
             <div className="space-y-3">
               {mitgliedschaften.map((m, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-900">{m.gesellschaft}</span>
+                    <span className="font-medium text-sm text-[var(--text)]">{m.gesellschaft}</span>
                     {m.verifiziert && (
-                      <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-[var(--teal)] bg-[var(--teal-light)] px-1.5 py-0.5 rounded">
                         verifiziert
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-[var(--muted)]">
                     {m.mitgliedsstatus} seit {m.mitglied_seit_jahr}
                   </div>
                 </div>
@@ -305,13 +318,13 @@ export default async function ArztProfilPage({
 
         {/* Promotion */}
         {promotion && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Promotion</h2>
-            <p className="text-sm text-gray-900 font-medium">{promotion.titel} ({promotion.jahr})</p>
-            <p className="text-sm text-gray-600 mt-1">{promotion.thema}</p>
-            <p className="text-sm text-gray-500">{promotion.universitaet}</p>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-3">Promotion</h2>
+            <p className="text-sm text-[var(--text)] font-medium">{promotion.titel} ({promotion.jahr})</p>
+            <p className="text-sm text-[var(--muted)] mt-1">{promotion.thema}</p>
+            <p className="text-sm text-[var(--muted)]">{promotion.universitaet}</p>
             {promotion.verifiziert && (
-              <span className="inline-block mt-2 text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+              <span className="inline-block mt-2 text-xs text-[var(--teal)] bg-[var(--teal-light)] px-1.5 py-0.5 rounded">
                 verifiziert
               </span>
             )}
@@ -320,18 +333,18 @@ export default async function ArztProfilPage({
 
         {/* Preise */}
         {preise.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Preise (Richtwerte)</h2>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-4">Preise (Richtwerte)</h2>
             <div className="space-y-2">
               {preise.map((p, i) => (
                 <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">{p.eingriff}</span>
-                  <span className="text-gray-900 font-medium">
+                  <span className="text-[var(--muted)]">{p.eingriff}</span>
+                  <span className="text-[var(--text)] font-medium">
                     {p.preis_von.toLocaleString("de-DE")}–{p.preis_bis.toLocaleString("de-DE")} {p.waehrung}
                   </span>
                 </div>
               ))}
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="text-xs text-[var(--muted)] mt-2">
                 Quelle: {[...new Set(preise.map((p) => p.quelle))].join(", ")}
               </p>
             </div>
@@ -340,26 +353,26 @@ export default async function ArztProfilPage({
 
         {/* Klinik-Info */}
         {arzt.klinik_name && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Klinik</h2>
+          <div className="bg-white rounded-xl border border-[var(--border)] p-6">
+            <h2 className="font-['Fraunces',serif] text-lg font-semibold text-[var(--text)] mb-3">Klinik</h2>
             <div className="space-y-2 text-sm">
-              <p className="font-medium text-gray-900">{arzt.klinik_name}</p>
-              <p className="text-gray-600">Typ: {arzt.klinik_typ?.replace(/_/g, " ")}</p>
+              <p className="font-medium text-[var(--text)]">{arzt.klinik_name}</p>
+              <p className="text-[var(--muted)]">Typ: {arzt.klinik_typ?.replace(/_/g, " ")}</p>
               {arzt.klinik_tuev && (
-                <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded">
-                  TUEV-zertifiziert
+                <span className="inline-block bg-[var(--teal-light)] text-[var(--teal)] text-xs px-2 py-0.5 rounded">
+                  TÜV-zertifiziert
                 </span>
               )}
               {arzt.klinik_fallzahlen && (
-                <p className="text-gray-600">
+                <p className="text-[var(--muted)]">
                   Fallzahlen Plastische Chirurgie: {arzt.klinik_fallzahlen}
                 </p>
               )}
               {arzt.klinik_gmbh && (
-                <div className="bg-amber-50 border border-amber-200 rounded p-3 mt-2">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
                   <p className="text-sm text-amber-800">
                     <strong>Hinweis:</strong> Diese Klinik ist als GmbH organisiert.
-                    Der Arzt ist moeglicherweise angestellt und nicht selbst haftend.
+                    Der Arzt ist möglicherweise angestellt und nicht selbst haftend.
                   </p>
                 </div>
               )}
@@ -368,7 +381,7 @@ export default async function ArztProfilPage({
                   href={arzt.klinik_website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-[var(--teal)] no-underline hover:underline"
                 >
                   Klinik-Website
                 </a>
@@ -376,19 +389,6 @@ export default async function ArztProfilPage({
             </div>
           </div>
         )}
-
-        {/* CTA */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
-            Beratungstermin anfragen
-          </h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Kontaktieren Sie {fullName} fuer ein unverbindliches Beratungsgespraech.
-          </p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-            Beratung anfragen
-          </button>
-        </div>
       </div>
     </main>
   );

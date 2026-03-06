@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Schoenheitsarzt-Verzeichnis | Facharzt oder Fantasietitel?",
+  title: "FacharztRegister | Ist dein Chirurg wirklich Facharzt?",
   description:
-    "Das transparente Verzeichnis fuer Schoenheitsaerzte in Deutschland. Wir zeigen, wer wirklich Facharzt ist und wer nur einen ungeschuetzten Titel fuehrt.",
+    "Das transparente Verzeichnis für Plastische Chirurgen in DACH. Wir zeigen, wer wirklich Facharzt ist — verifiziert durch Ärztekammern, MedReg und ÖÄK.",
 };
 
 export default function RootLayout({
@@ -20,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} font-sans antialiased bg-gray-50 text-gray-900`}>
+      <body className="antialiased min-h-screen">
         {children}
       </body>
     </html>
