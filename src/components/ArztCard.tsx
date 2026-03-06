@@ -1,9 +1,9 @@
 const SOURCE_LABELS: Record<string, string> = {
   aerztekammer_de: "Ärztekammer",
-  kbv: "KBV (116117)",
+  kbv: "KBV",
   medreg: "MedReg",
   oegk: "OEGK",
-  arztauskunft_de: "Arzt-Auskunft",
+  arztauskunft_de: "Öffentliches Verzeichnis",
 };
 
 const AVATAR_COLORS = [
