@@ -157,8 +157,7 @@ export default async function Home({
         </Link>
         <ul className="hidden sm:flex gap-6 list-none">
           <li><Link href="/" className="text-white/65 text-[13px] no-underline hover:text-white transition-colors">Verzeichnis</Link></li>
-          <li><Link href="#warum" className="text-white/65 text-[13px] no-underline hover:text-white transition-colors">Warum keine Bewertungen?</Link></li>
-          <li><Link href="#ueber" className="text-white/65 text-[13px] no-underline hover:text-white transition-colors">Über uns</Link></li>
+          <li><Link href="#warum" className="text-white/65 text-[13px] no-underline hover:text-white transition-colors">Unsere Mission</Link></li>
         </ul>
       </nav>
 
@@ -205,6 +204,55 @@ export default async function Home({
       {/* STATS STRIP */}
       <StatsBar stats={stats} />
 
+      {/* MISSION SECTION */}
+      <div id="warum" className="bg-white border-b border-[var(--border)]">
+        <div className="max-w-[1340px] mx-auto px-4 sm:px-10 py-8 sm:py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[var(--navy)] flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5 text-[#4dd9c0]">
+                  <path d="M10 1l2.39 4.84L18 6.71l-4 3.9.94 5.5L10 13.47 5.06 16.1 6 10.6l-4-3.9 5.61-.87L10 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-['Fraunces',serif] text-sm font-semibold text-[var(--text)] mb-1">Keine Bewertungen. Absichtlich.</h3>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">
+                  Sternebewertungen sind leicht manipulierbar und sagen nichts über die fachliche Qualifikation aus. Wir verzichten bewusst darauf.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[var(--navy)] flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5 text-[#4dd9c0]">
+                  <path d="M16.5 3.5L7.5 12.5 3.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="1" y="1" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-['Fraunces',serif] text-sm font-semibold text-[var(--text)] mb-1">Nur geprüfte Facharzttitel</h3>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">
+                  Jeder Eintrag basiert auf offiziellen Ärztekammer-Daten. Der Titel &bdquo;Facharzt für Plastische und Ästhetische Chirurgie&ldquo; ist gesetzlich geschützt &mdash; den kann niemand kaufen.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[var(--navy)] flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5 text-[#4dd9c0]">
+                  <circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M10 5v5l3.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-['Fraunces',serif] text-sm font-semibold text-[var(--text)] mb-1">Transparenz statt Marketing</h3>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">
+                  Kein Arzt kann sich hier besser darstellen oder für Sichtbarkeit bezahlen. Alle Daten stammen aus öffentlichen, unabhängigen Quellen.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* MAIN LAYOUT */}
       <div className="max-w-[1340px] mx-auto px-4 sm:px-6 py-5 flex-1 w-full">
         <div className="flex gap-5 items-start">
@@ -218,14 +266,6 @@ export default async function Home({
 
           {/* RESULTS */}
           <div className="flex-1 min-w-0">
-            {/* No Ratings Banner */}
-            <div id="warum" className="bg-[var(--navy)] rounded-lg px-4 py-3 flex gap-3 items-center mb-4">
-              <span className="text-base shrink-0">&#9878;</span>
-              <p className="text-xs text-white/65">
-                <strong className="text-white font-medium">Keine Bewertungen.</strong>{" "}
-                Unser einziges Qualitätsmerkmal ist der Ärztekammer-geprüfte Facharzttitel — den kann niemand kaufen.
-              </p>
-            </div>
 
             {/* Mobile Filters */}
             <details className="md:hidden mb-4 bg-white rounded-lg border border-[var(--border)]">
@@ -334,6 +374,26 @@ export default async function Home({
         </div>
       </div>
 
+      {/* WARUM SECTION — full explanation */}
+      <section className="bg-[var(--sand)] border-t border-[var(--border)] px-4 sm:px-10 py-10 sm:py-14">
+        <div className="max-w-[720px] mx-auto">
+          <h2 className="font-['Fraunces',serif] text-xl sm:text-2xl font-semibold text-[var(--text)] text-center mb-6">
+            Warum keine Bewertungen?
+          </h2>
+          <div className="space-y-4 text-sm text-[var(--muted)] leading-relaxed">
+            <p>
+              Plastische Chirurgie ist ein Bereich, in dem Patienten oft unsicher sind, wem sie vertrauen können. Viele Portale bieten Sternebewertungen an &mdash; doch diese sind leicht manipulierbar: Bewertungen können gekauft, negative gelöscht und Profile gegen Bezahlung hervorgehoben werden.
+            </p>
+            <p>
+              <strong className="text-[var(--text)]">Wir gehen einen anderen Weg.</strong> Unser einziges Qualitätskriterium ist der Facharzttitel. Der Titel &bdquo;Facharzt für Plastische und Ästhetische Chirurgie&ldquo; ist in Deutschland gesetzlich geschützt und erfordert eine mindestens 6-jährige Weiterbildung nach dem Medizinstudium. Er wird von der zuständigen Ärztekammer verliehen und ist öffentlich überprüfbar.
+            </p>
+            <p>
+              Jeder Arzt in diesem Verzeichnis wurde anhand offizieller Ärztekammer-Daten verifiziert. Kein Arzt kann sich besser darstellen, für Sichtbarkeit bezahlen oder seine Position beeinflussen. Das macht FacharztRegister zum transparentesten Verzeichnis für Plastische Chirurgen im deutschsprachigen Raum.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer id="ueber" className="bg-[var(--navy)] px-4 sm:px-10 py-8 mt-auto">
         <div className="max-w-[1340px] mx-auto">
@@ -343,12 +403,12 @@ export default async function Home({
                 Facharzt<span className="text-[#4dd9c0]">Register</span>
               </div>
               <p className="text-white/40 text-xs mt-1 max-w-md">
-                Das transparente Verzeichnis für Plastische Chirurgen in DACH. Facharzttitel geprüft anhand offizieller Quellen.
+                Das transparente Verzeichnis für Plastische Chirurgen in Deutschland. Facharzttitel geprüft anhand offizieller Ärztekammer-Quellen.
               </p>
             </div>
             <div className="flex gap-6 text-white/40 text-xs">
               <Link href="/" className="no-underline text-white/40 hover:text-white/70 transition-colors">Verzeichnis</Link>
-              <Link href="#warum" className="no-underline text-white/40 hover:text-white/70 transition-colors">Keine Bewertungen</Link>
+              <Link href="#warum" className="no-underline text-white/40 hover:text-white/70 transition-colors">Unsere Mission</Link>
             </div>
           </div>
           <div className="mt-6 pt-4 border-t border-white/10 text-white/25 text-[11px]">
