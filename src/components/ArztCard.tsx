@@ -72,11 +72,6 @@ export default function ArztCard({ arzt }: ArztCardProps) {
             Verifiziert
           </span>
         )}
-        {arzt.ist_facharzt && (
-          <span className="inline-flex items-center text-[10px] font-medium py-0.5 px-2 rounded bg-blue-50 text-blue-700">
-            Facharzt
-          </span>
-        )}
         {arzt.gkv_zugelassen && (
           <span className="inline-flex items-center text-[10px] font-medium py-0.5 px-2 rounded bg-amber-50 text-amber-700">
             GKV
@@ -85,14 +80,8 @@ export default function ArztCard({ arzt }: ArztCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="text-[11px] text-[var(--muted)] pt-2 border-t border-[var(--border)] flex items-center justify-between gap-2 mt-auto">
-        <span className="truncate">{arzt.facharzttitel || arzt.selbstbezeichnung || "Plastische Chirurgie"}</span>
-        {arzt.source && (
-          <span className="flex items-center gap-1 shrink-0">
-            <span className="w-1 h-1 rounded-full bg-[var(--teal)] inline-block" />
-            <span className="text-[10px]">{SOURCE_LABELS[arzt.source] || arzt.source}</span>
-          </span>
-        )}
+      <div className="text-[11px] text-[var(--muted)] pt-2 border-t border-[var(--border)] mt-auto truncate">
+        {arzt.facharzttitel || arzt.selbstbezeichnung || "Plastische Chirurgie"}
       </div>
     </div>
   );
