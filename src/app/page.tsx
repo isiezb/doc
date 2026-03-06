@@ -95,8 +95,14 @@ export default async function Home({
     case "erfahrung":
       orderBy = "a.facharzt_seit_jahr ASC NULLS LAST, a.approbation_jahr ASC";
       break;
-    default:
+    case "neu":
+      orderBy = "a.id DESC";
+      break;
+    case "name":
       orderBy = "a.nachname ASC, a.vorname ASC";
+      break;
+    default:
+      orderBy = "a.id DESC";
   }
 
   const aerzte = await query(`

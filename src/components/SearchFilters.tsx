@@ -73,11 +73,12 @@ export default function SearchFilters({ bundeslaender, currentParams }: SearchFi
         <label className="block text-sm font-medium text-gray-700 mb-1">Sortierung</label>
         <select
           name="sort"
-          defaultValue={currentParams.sort || "name"}
+          defaultValue={currentParams.sort || "neu"}
           className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white"
         >
           <option value="name">Name</option>
           <option value="erfahrung">Erfahrung</option>
+          <option value="neu">Neueste zuerst</option>
         </select>
       </div>
 
