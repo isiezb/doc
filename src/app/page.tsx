@@ -32,14 +32,21 @@ interface SearchParams {
   bundesland?: string;
   nur_fachaezte?: string;
   sort?: string;
+  page?: string;
 }
+
+const PAGE_SIZE = 50;
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const rawSp = await searchParams;
+  // Strip undefined values so URLSearchParams doesn't produce "key=undefined"
+  const sp = Object.fromEntries(
+    Object.entries(rawSp).filter(([, v]) => v !== undefined)
+  ) as SearchParams;
 
   const conditions: string[] = [];
   const values: (string | number)[] = [];
@@ -71,6 +78,9 @@ export default async function Home({
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
+  const page = Math.max(1, parseInt(sp.page || "1") || 1);
+  const offset = (page - 1) * PAGE_SIZE;
+
   let orderBy: string;
   switch (sp.sort) {
     case "erfahrung":
@@ -89,8 +99,14 @@ export default async function Home({
     LEFT JOIN kliniken k ON a.klinik_id = k.id
     ${where}
     ORDER BY ${orderBy}
-    LIMIT 50
+    LIMIT ${PAGE_SIZE} OFFSET ${offset}
   `, values) as Arzt[];
+
+  const filteredCount = await queryOne(`
+    SELECT COUNT(*)::int AS total FROM aerzte a ${where}
+  `, values) as { total: number };
+  const totalFiltered = filteredCount.total;
+  const totalPages = Math.ceil(totalFiltered / PAGE_SIZE);
 
   const stats = await queryOne(`
     SELECT
@@ -176,7 +192,7 @@ export default async function Home({
         <section className="flex-1">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              {aerzte.length} Aerzte gefunden
+              {totalFiltered} Aerzte gefunden (Seite {page} von {totalPages})
             </p>
           </div>
 
@@ -192,6 +208,51 @@ export default async function Home({
             <div className="text-center py-12 text-gray-500">
               Keine Aerzte mit diesen Kriterien gefunden.
             </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="mt-8 flex items-center justify-center gap-2">
+              {page > 1 && (
+                <Link
+                  href={`/?${new URLSearchParams({ ...sp, page: String(page - 1) }).toString()}`}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                >
+                  Zurück
+                </Link>
+              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                  if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  p === "..." ? (
+                    <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
+                  ) : (
+                    <Link
+                      key={p}
+                      href={`/?${new URLSearchParams({ ...sp, page: String(p) }).toString()}`}
+                      className={`px-3 py-2 rounded-lg text-sm ${
+                        p === page
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  )
+                )}
+              {page < totalPages && (
+                <Link
+                  href={`/?${new URLSearchParams({ ...sp, page: String(page + 1) }).toString()}`}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                >
+                  Weiter
+                </Link>
+              )}
+            </nav>
           )}
         </section>
       </div>
