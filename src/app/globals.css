@@ -33,3 +33,19 @@ body {
   background: var(--sand);
   clip-path: ellipse(55% 100% at 50% 100%);
 }
+
+/* Hide mobile menu by default */
+.mobile-menu {
+  display: none;
+}
+
+/* Responsive sidebar: hidden on mobile, shown on desktop */
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    display: none;
+  }
+
+  .mobile-menu.open {
+    display: flex;
+  }
+}

@@ -157,16 +157,16 @@ export default async function ArztProfilPage({
   return (
     <main className="min-h-screen">
       {/* NAV */}
-      <nav className="bg-[var(--navy)] px-10 h-[60px] flex items-center justify-between sticky top-0 z-50">
+      <nav className="bg-[var(--navy)] px-4 sm:px-10 h-[56px] flex items-center justify-between sticky top-0 z-50">
         <Link href="/" className="font-['Fraunces',serif] text-lg text-white font-semibold tracking-tight no-underline">
           Facharzt<span className="text-[#4dd9c0]">Register</span>
         </Link>
-        <Link href="/" className="text-white/65 text-sm no-underline hover:text-white transition-colors">
-          ← Zurück zur Suche
+        <Link href="/" className="text-white/65 text-[13px] no-underline hover:text-white transition-colors">
+          &#8592; Zurück zur Suche
         </Link>
       </nav>
 
-      <div className="max-w-[800px] mx-auto px-10 py-8 space-y-6">
+      <div className="max-w-[800px] mx-auto px-4 sm:px-10 py-6 space-y-5">
         {/* Profile Header */}
         <div className="bg-white rounded-xl border border-[var(--border)] p-6">
           <div className="flex items-start gap-4">
