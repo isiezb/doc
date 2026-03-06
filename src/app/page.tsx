@@ -169,7 +169,7 @@ export default async function Home({
           </h1>
 
           <p className="text-white/50 text-[13px] leading-relaxed max-w-[460px] mx-auto mb-5 font-light">
-            Facharzttitel geprüft bei Ärztekammern, MedReg und ÖÄK. Kein Selbstmarketing. Keine Bewertungen.
+            Facharzttitel geprüft anhand offizieller Ärztekammer-Daten. Kein Selbstmarketing. Keine Bewertungen.
           </p>
 
           <form method="GET" className="flex flex-col sm:flex-row bg-white rounded-lg overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.25)] max-w-[540px] mx-auto">
